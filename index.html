@@ -3,98 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyGuard - AI Study Tracker</title>
+<title>StudyGuard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #08080a;
+    --surface: #131316;
+    --surface-2: #1c1c20;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --text: #f2f2f4;
+    --text-dim: #8b8b93;
+    --text-faint: #56565d;
+    --accent: #6c63ff;
+    --accent-soft: rgba(108,99,255,0.12);
+    --danger: #ff5470;
+    --danger-soft: rgba(255,84,112,0.10);
+    --warn: #ffb020;
+    --success: #34d399;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #0a0a1a;
-    color: #fff;
-    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ── LANDING / PERMISSION SCREEN ── */
+  /* ── PERMISSION SCREEN ── */
   #permissionScreen {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%);
     text-align: center;
-    padding: 20px;
+    padding: 24px;
   }
 
-  .logo {
-    font-size: 3rem;
-    margin-bottom: 10px;
-    animation: pulse 2s infinite;
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .brand-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 5px var(--accent-soft);
+    animation: pulse 2.2s infinite;
   }
 
   @keyframes pulse {
-    0%,100% { transform: scale(1); }
-    50%      { transform: scale(1.08); }
+    0%,100% { opacity: 1; }
+    50%      { opacity: .45; }
   }
 
   #permissionScreen h1 {
-    font-size: 2.8rem;
-    background: linear-gradient(90deg, #6c63ff, #48cfad);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 12px;
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
   }
 
   #permissionScreen p {
-    color: #aaa;
-    font-size: 1.1rem;
-    max-width: 520px;
+    color: var(--text-dim);
+    font-size: 1rem;
+    max-width: 460px;
     line-height: 1.7;
-    margin-bottom: 30px;
+    margin-bottom: 32px;
   }
 
   .feature-list {
     display: flex;
-    gap: 16px;
+    gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
-    margin-bottom: 36px;
+    margin-bottom: 40px;
   }
 
-  .feature-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 14px;
-    padding: 16px 20px;
-    width: 160px;
-    text-align: center;
+  .feature-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: .78rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: .01em;
   }
-
-  .feature-card .icon { font-size: 2rem; margin-bottom: 8px; }
-  .feature-card p    { color: #ccc; font-size: 0.82rem; }
 
   #startBtn {
-    background: linear-gradient(135deg, #6c63ff, #48cfad);
+    background: var(--accent);
     border: none;
     color: #fff;
-    font-size: 1.2rem;
-    padding: 16px 48px;
-    border-radius: 50px;
+    font-size: 1rem;
+    padding: 15px 36px;
+    border-radius: 12px;
     cursor: pointer;
     font-weight: 700;
-    transition: transform .2s, box-shadow .2s;
-    box-shadow: 0 8px 32px rgba(108,99,255,0.4);
+    font-family: inherit;
+    transition: transform .15s ease, background .15s ease;
   }
 
-  #startBtn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(108,99,255,0.6); }
-  #startBtn:disabled { opacity: .6; cursor: not-allowed; transform:none; }
+  #startBtn:hover { background: #7c74ff; transform: translateY(-1px); }
+  #startBtn:active { transform: translateY(0); }
+  #startBtn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
   /* ── MAIN APP ── */
   #mainApp {
     display: none;
-    padding: 20px;
-    max-width: 1200px;
+    padding: 28px 24px 60px;
+    max-width: 1180px;
     margin: 0 auto;
   }
 
@@ -102,56 +130,60 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
   }
 
   .topbar h2 {
-    font-size: 1.6rem;
-    background: linear-gradient(90deg, #6c63ff, #48cfad);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .status-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 50px;
-    padding: 8px 18px;
-    font-size: .9rem;
+    gap: 9px;
+    font-size: .82rem;
+    color: var(--text-dim);
+    font-weight: 500;
   }
 
   .dot {
-    width: 10px; height: 10px;
+    width: 7px; height: 7px;
     border-radius: 50%;
-    background: #48cfad;
-    animation: blink 1.2s infinite;
+    background: var(--success);
+    animation: blink 1.4s infinite;
   }
 
-  .dot.red   { background: #ff4757; }
-  .dot.grey  { background: #666; animation: none; }
+  .dot.red   { background: var(--danger); }
+  .dot.grey  { background: var(--text-faint); animation: none; }
 
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
 
   .grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 20px;
+    grid-template-columns: 1fr 320px;
+    gap: 18px;
   }
 
   @media(max-width:860px){ .grid{ grid-template-columns:1fr; } }
 
   .cam-box {
-    background: #111128;
-    border-radius: 20px;
+    background: var(--surface);
+    border-radius: 16px;
     overflow: hidden;
     position: relative;
-    border: 2px solid rgba(108,99,255,0.3);
+    border: 1px solid var(--border);
     aspect-ratio: 4/3;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+    transition: border-color .2s ease;
   }
 
   #video {
@@ -172,49 +204,59 @@
   .cam-label {
     position: absolute;
     top: 12px; left: 12px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 8px;
-    padding: 4px 12px;
-    font-size: .8rem;
-    color: #48cfad;
-    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(8,8,10,0.7);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 10px 5px 8px;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text-dim);
+    backdrop-filter: blur(8px);
   }
+
+  .cam-label .dotlet { width:6px; height:6px; border-radius:50%; background: var(--danger); animation: blink 1.4s infinite; }
 
   .cam-perf {
     position: absolute;
     top: 12px; right: 12px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 8px;
-    padding: 4px 12px;
-    font-size: .72rem;
-    color: #888;
-    backdrop-filter: blur(6px);
+    background: rgba(8,8,10,0.7);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: .68rem;
+    color: var(--text-faint);
+    backdrop-filter: blur(8px);
+    font-variant-numeric: tabular-nums;
   }
 
   #distractionBanner {
     display: none;
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    background: rgba(255,71,87,0.92);
+    background: rgba(255,84,112,0.94);
     text-align: center;
-    padding: 14px;
+    padding: 13px;
     font-weight: 700;
-    font-size: 1rem;
-    animation: slideUp .4s ease;
+    font-size: .88rem;
+    color: #fff;
+    animation: slideUp .3s ease;
     backdrop-filter: blur(4px);
   }
 
   @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 
-  /* video card */
   .video-frame {
     position: relative;
     width: 100%;
     aspect-ratio: 16/9;
     background: #000;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
-    margin-top: 12px;
+    margin-top: 14px;
     display: none;
   }
   .video-frame iframe { width:100%; height:100%; border:0; display:block; }
@@ -222,21 +264,23 @@
   .video-input-row { display:flex; gap:8px; }
   .video-input-row input {
     flex: 1;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 10px;
-    padding: 10px 12px;
-    color: #fff;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 13px;
+    color: var(--text);
+    font-family: inherit;
     font-size: .85rem;
     outline: none;
+    transition: border-color .15s ease;
   }
-  .video-input-row input:focus { border-color: #6c63ff; }
-  .video-input-row input::placeholder { color: #555; }
+  .video-input-row input:focus { border-color: var(--accent); }
+  .video-input-row input::placeholder { color: var(--text-faint); }
 
   .video-badge {
     margin-top: 10px;
-    font-size: .78rem;
-    color: #48cfad;
+    font-size: .76rem;
+    color: var(--text-dim);
     display: none;
     align-items: center;
     gap: 6px;
@@ -246,146 +290,145 @@
     display: none;
     margin-top: 10px;
     font-size: .8rem;
-    color: #ff6b81;
-    background: rgba(255,71,87,0.08);
-    border: 1px solid rgba(255,71,87,0.3);
-    border-radius: 10px;
+    color: var(--danger);
+    background: var(--danger-soft);
+    border: 1px solid rgba(255,84,112,0.25);
+    border-radius: 9px;
     padding: 10px 12px;
     line-height: 1.5;
   }
-  .yt-error a { color: #48cfad; text-decoration: underline; }
+  .yt-error a { color: var(--text); text-decoration: underline; }
 
   .frame-hint {
     position: absolute;
     top: 12px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.55);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 30px;
-    padding: 6px 16px;
-    font-size: .74rem;
-    color: #ccc;
-    backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    background: rgba(8,8,10,0.7);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: .72rem;
+    color: var(--text-dim);
+    backdrop-filter: blur(8px);
     white-space: nowrap;
+    font-weight: 500;
   }
 
-  .cam-box.out-of-frame { border-color: rgba(255,71,87,0.7); }
+  .cam-box.out-of-frame { border-color: rgba(255,84,112,0.6); }
 
-  .side-panel { display: flex; flex-direction: column; gap: 16px; }
+  .side-panel { display: flex; flex-direction: column; gap: 14px; }
 
   .card {
-    background: #111128;
-    border-radius: 18px;
-    padding: 22px;
-    border: 1px solid rgba(108,99,255,0.2);
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid var(--border);
   }
 
   .card h3 {
-    font-size: .85rem;
-    color: #888;
+    font-size: .7rem;
+    color: var(--text-faint);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
+    letter-spacing: .08em;
+    font-weight: 700;
+    margin-bottom: 16px;
   }
 
   .stopwatch-display {
-    font-size: 2.9rem;
+    font-size: 2.6rem;
     font-weight: 800;
     text-align: center;
     font-variant-numeric: tabular-nums;
-    background: linear-gradient(90deg, #6c63ff, #48cfad);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 1px;
+    letter-spacing: -0.01em;
     line-height: 1;
     margin-bottom: 6px;
+    color: var(--text);
   }
 
   .stopwatch-sub {
     text-align: center;
-    font-size: .8rem;
-    color: #666;
-    margin-bottom: 16px;
+    font-size: .78rem;
+    color: var(--text-faint);
+    margin-bottom: 18px;
   }
 
-  .btn-row { display: flex; gap: 10px; }
+  .btn-row { display: flex; gap: 8px; }
 
   .btn {
     flex: 1;
     padding: 11px;
-    border: none;
-    border-radius: 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
     font-weight: 700;
-    font-size: .9rem;
+    font-size: .84rem;
+    font-family: inherit;
     cursor: pointer;
-    transition: transform .15s, opacity .15s;
+    transition: filter .15s, opacity .15s, background .15s;
   }
 
-  .btn:active { transform: scale(.96); }
+  .btn:active { filter: brightness(.9); }
 
-  .btn-green  { background: linear-gradient(135deg,#48cfad,#26d0ce); color:#0a0a1a; }
-  .btn-red    { background: linear-gradient(135deg,#ff4757,#ff6b81); color:#fff; }
-  .btn-purple { background: linear-gradient(135deg,#6c63ff,#a29bfe); color:#fff; }
-  .btn-grey   { background: #222; color:#aaa; }
-  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-green  { background: var(--success); color: #06251b; }
+  .btn-red    { background: var(--danger); color: #fff; }
+  .btn-purple { background: var(--accent); color: #fff; }
+  .btn-grey   { background: transparent; color: var(--text-dim); border-color: var(--border-strong); }
+  .btn:disabled { opacity:.35; cursor:not-allowed; }
 
   .toggle-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
   }
   .toggle-row:last-child { margin-bottom: 0; }
-  .toggle-row span { font-size: .9rem; color: #ccc; }
+  .toggle-row span { font-size: .84rem; color: var(--text-dim); }
 
-  .switch { position:relative; width:50px; height:26px; flex-shrink:0; }
+  .switch { position:relative; width:38px; height:22px; flex-shrink:0; }
   .switch input { opacity:0; width:0; height:0; }
 
   .slider {
     position: absolute; inset: 0;
-    background: #333;
-    border-radius: 26px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 22px;
     cursor: pointer;
-    transition: .3s;
+    transition: .2s;
   }
 
   .slider:before {
     content: '';
     position: absolute;
-    width: 20px; height: 20px;
-    left: 3px; top: 3px;
-    background: #fff;
+    width: 16px; height: 16px;
+    left: 2px; top: 2px;
+    background: var(--text-dim);
     border-radius: 50%;
-    transition: .3s;
+    transition: .2s;
   }
 
-  input:checked + .slider { background: linear-gradient(135deg,#6c63ff,#48cfad); }
-  input:checked + .slider:before { transform: translateX(24px); }
+  input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+  input:checked + .slider:before { transform: translateX(16px); background: #fff; }
 
   .stat-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .stat-row:last-child { border-bottom: none; }
-  .stat-label { color: #888; font-size: .85rem; }
-  .stat-value { font-weight: 700; font-size: .95rem; }
-  .stat-value.good  { color: #48cfad; }
-  .stat-value.warn  { color: #ffa502; }
-  .stat-value.bad   { color: #ff4757; }
+  .stat-label { color: var(--text-faint); font-size: .82rem; }
+  .stat-value { font-weight: 700; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .stat-value.good  { color: var(--success); }
+  .stat-value.warn  { color: var(--warn); }
+  .stat-value.bad   { color: var(--danger); }
 
   #logList {
-    max-height: 160px;
+    max-height: 150px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: #333 transparent;
+    scrollbar-color: var(--surface-2) transparent;
   }
 
   .log-item {
@@ -393,69 +436,70 @@
     gap: 8px;
     align-items: flex-start;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: .82rem;
-    color: #aaa;
+    border-bottom: 1px solid var(--border);
+    font-size: .78rem;
+    color: var(--text-dim);
   }
 
-  .log-item .log-time { color: #555; white-space: nowrap; min-width: 54px; }
-  .log-item.dist      { color: #ff6b81; }
-  .log-item.focus     { color: #48cfad; }
-  .log-item.tab       { color: #ffa502; }
+  .log-item .log-time { color: var(--text-faint); white-space: nowrap; min-width: 50px; font-variant-numeric: tabular-nums; }
+  .log-item.dist      { color: var(--danger); }
+  .log-item.focus     { color: var(--success); }
+  .log-item.tab       { color: var(--warn); }
 
   #toast {
     position: fixed;
-    top: 24px; right: 24px;
-    background: rgba(20,20,50,0.95);
-    border: 1px solid rgba(108,99,255,0.4);
-    border-radius: 14px;
-    padding: 14px 20px;
-    min-width: 260px;
-    font-size: .92rem;
+    top: 20px; right: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 13px 18px;
+    min-width: 250px;
+    font-size: .86rem;
     z-index: 9999;
     display: none;
     backdrop-filter: blur(10px);
-    animation: toastIn .35s ease;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: toastIn .3s ease;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
   }
 
-  @keyframes toastIn { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes toastIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
 
-  #toast .toast-icon { font-size:1.4rem; margin-right:10px; }
+  #toast .toast-icon { font-size:1.1rem; margin-right:10px; }
 
   #tabWarning {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(255,71,87,0.12);
+    background: rgba(255,84,112,0.08);
     pointer-events: none;
     z-index: 8888;
-    border: 4px solid #ff4757;
+    border: 3px solid var(--danger);
     animation: borderPulse 1s infinite;
   }
 
   @keyframes borderPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
   .progress-bar-wrap {
-    background: #1a1a3e;
+    background: var(--surface-2);
     border-radius: 50px;
-    height: 8px;
+    height: 6px;
     overflow: hidden;
-    margin-top: 6px;
+    margin-top: 8px;
   }
 
   .progress-bar-fill {
     height: 100%;
     border-radius: 50px;
-    background: linear-gradient(90deg,#6c63ff,#48cfad);
+    background: var(--accent);
     transition: width .5s;
   }
 
   .focus-score-num {
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: 800;
     text-align: center;
-    margin: 6px 0 2px;
+    margin: 4px 0 2px;
+    font-variant-numeric: tabular-nums;
   }
 </style>
 </head>
@@ -465,20 +509,18 @@
      PERMISSION / LANDING SCREEN
 ════════════════════════════════════════════ -->
 <div id="permissionScreen">
-  <div class="logo">📚</div>
-  <h1>StudyGuard</h1>
-  <p>Your AI-powered focus companion. StudyGuard watches you through your camera,
-     detects when you get distracted, pauses your timer, and speaks up to bring you back!</p>
+  <div class="brand"><div class="brand-dot"></div><h1>StudyGuard</h1></div>
+  <p>Your AI-powered focus companion. It watches you through your camera, tells you when you've stepped away, pauses your timer, and speaks up to bring you back.</p>
 
   <div class="feature-list">
-    <div class="feature-card"><div class="icon">🎯</div><p>Pose & Face Tracking</p></div>
-    <div class="feature-card"><div class="icon">⏱️</div><p>Smart Stopwatch</p></div>
-    <div class="feature-card"><div class="icon">🔊</div><p>Voice Alerts</p></div>
-    <div class="feature-card"><div class="icon">📊</div><p>Focus Score</p></div>
-    <div class="feature-card"><div class="icon">🚨</div><p>Tab-Switch Detect</p></div>
+    <div class="feature-chip">Body tracking</div>
+    <div class="feature-chip">Smart stopwatch</div>
+    <div class="feature-chip">Voice alerts</div>
+    <div class="feature-chip">Focus score</div>
+    <div class="feature-chip">Tab-switch detect</div>
   </div>
 
-  <button id="startBtn" onclick="initApp()">🎥 Allow Camera & Start</button>
+  <button id="startBtn" onclick="initApp()">Allow Camera & Start</button>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -487,7 +529,7 @@
 <div id="mainApp">
 
   <div class="topbar">
-    <h2>📚 StudyGuard</h2>
+    <h2>StudyGuard</h2>
     <div class="status-badge">
       <div class="dot" id="statusDot"></div>
       <span id="statusText">Initialising…</span>
@@ -501,19 +543,19 @@
       <div class="cam-box">
         <video id="video" autoplay muted playsinline></video>
         <canvas id="overlay"></canvas>
-        <div class="cam-label">📡 LIVE</div>
+        <div class="cam-label"><span class="dotlet"></span>LIVE</div>
         <div class="cam-perf" id="fpsLabel">— fps</div>
-        <div class="frame-hint">🧍 Keep yourself in frame</div>
-        <div id="distractionBanner">⚠️ You're out of frame — get back in view!</div>
+        <div class="frame-hint">Keep yourself in frame</div>
+        <div id="distractionBanner">You're out of frame — get back in view!</div>
       </div>
 
       <div class="card">
-        <h3>🎬 Study Video</h3>
+        <h3>Study Video</h3>
         <div class="video-input-row">
           <input type="text" id="ytInput" placeholder="Paste a YouTube link…">
           <button class="btn btn-purple" style="flex:0 0 auto; padding:11px 18px;" onclick="loadYouTube()">Load</button>
         </div>
-        <div class="video-badge" id="videoBadge">🔒 Watch mode on — leaving this tab counts as a distraction</div>
+        <div class="video-badge" id="videoBadge">Watch mode on — leaving this tab counts as a distraction</div>
         <div class="video-frame" id="videoFrame"></div>
         <div class="yt-error" id="ytError"></div>
       </div>
@@ -523,34 +565,41 @@
     <div class="side-panel">
 
       <div class="card">
-        <h3>⏱ Study Timer</h3>
+        <h3>Study Timer</h3>
         <div class="stopwatch-display" id="swDisplay">00:00:00</div>
         <div class="stopwatch-sub" id="swSub">Timer paused</div>
         <div class="btn-row">
-          <button class="btn btn-green" id="btnStart" onclick="startTimer()">▶ Start</button>
-          <button class="btn btn-red"   id="btnStop"  onclick="stopTimer()" disabled>⏸ Pause</button>
-          <button class="btn btn-grey"  id="btnReset" onclick="resetTimer()">↺ Reset</button>
+          <button class="btn btn-green" id="btnStart" onclick="startTimer()">Start</button>
+          <button class="btn btn-red"   id="btnStop"  onclick="stopTimer()" disabled>Pause</button>
+          <button class="btn btn-grey"  id="btnReset" onclick="resetTimer()">Reset</button>
         </div>
       </div>
 
       <div class="card">
-        <h3>🎯 Tracking</h3>
+        <h3>Tracking</h3>
         <div class="toggle-row">
-          <span>Enable Distraction Detection</span>
+          <span>Distraction detection</span>
           <label class="switch">
             <input type="checkbox" id="trackToggle" checked onchange="toggleTracking()">
             <div class="slider"></div>
           </label>
         </div>
         <div class="toggle-row">
-          <span>Voice Alerts</span>
+          <span>Voice alerts</span>
           <label class="switch">
             <input type="checkbox" id="voiceToggle" checked>
             <div class="slider"></div>
           </label>
         </div>
         <div class="toggle-row">
-          <span>Tab-Switch Alert</span>
+          <span>Alarm sound</span>
+          <label class="switch">
+            <input type="checkbox" id="alarmToggle" checked>
+            <div class="slider"></div>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Tab-switch alert</span>
           <label class="switch">
             <input type="checkbox" id="tabToggle" checked>
             <div class="slider"></div>
@@ -559,13 +608,13 @@
       </div>
 
       <div class="card">
-        <h3>🧠 Focus Score</h3>
+        <h3>Focus Score</h3>
         <div class="focus-score-num" id="focusScoreNum">100</div>
         <div class="progress-bar-wrap"><div class="progress-bar-fill" id="focusBar" style="width:100%"></div></div>
       </div>
 
       <div class="card">
-        <h3>📊 Session Stats</h3>
+        <h3>Session Stats</h3>
         <div class="stat-row"><span class="stat-label">Focus time</span><span class="stat-value good" id="statFocus">00:00</span></div>
         <div class="stat-row"><span class="stat-label">Distracted time</span><span class="stat-value bad" id="statDist">00:00</span></div>
         <div class="stat-row"><span class="stat-label">Distractions</span><span class="stat-value warn" id="statCount">0</span></div>
@@ -573,7 +622,7 @@
       </div>
 
       <div class="card">
-        <h3>📝 Activity Log</h3>
+        <h3>Activity Log</h3>
         <div id="logList"></div>
       </div>
 
@@ -588,8 +637,12 @@
   <span id="toastMsg">Alert</span>
 </div>
 
+<!-- Alarm sound — plays while you're out of frame, stops the moment you're back -->
+<audio id="alarmAudio" preload="auto" loop
+  src="https://res.cloudinary.com/dazk46eqa/video/upload/v1787845590/homelander-going-crazy-angry-violin-theme-song_wtndcg.mp3"></audio>
+
 <!-- Pose model only: this is what actually detects "are you in frame", is lighter,
-     and — unlike the old face-mesh model — never gets stuck if it fails to load. -->
+     and — unlike a face-mesh model — never gets stuck if it fails to load. -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
 
@@ -660,7 +713,7 @@ const MESSAGES_TAB_VIDEO = [
 ═══════════════════════════════════ */
 async function initApp() {
   const startBtn = document.getElementById('startBtn');
-  startBtn.textContent = '⏳ Loading…';
+  startBtn.textContent = 'Loading…';
   startBtn.disabled    = true;
 
   try {
@@ -670,7 +723,7 @@ async function initApp() {
     });
   } catch(e) {
     alert('Camera permission denied. Please allow camera access and reload.');
-    startBtn.textContent = '🎥 Allow Camera & Start';
+    startBtn.textContent = 'Allow Camera & Start';
     startBtn.disabled    = false;
     return;
   }
@@ -786,8 +839,8 @@ function drawPose(ctx, pose, w, h) {
   const scaleY = h / 360;
   const active = blockers.has('camera');
 
-  ctx.strokeStyle = active ? '#ff4757' : '#48cfad';
-  ctx.lineWidth   = 2.5;
+  ctx.strokeStyle = active ? '#ff5470' : '#6c63ff';
+  ctx.lineWidth   = 2;
   CONNECTIONS.forEach(([a, b]) => {
     const A = kp[a], B = kp[b];
     if(A.score > 0.3 && B.score > 0.3) {
@@ -801,8 +854,8 @@ function drawPose(ctx, pose, w, h) {
   kp.forEach(p => {
     if(p.score > 0.3) {
       ctx.beginPath();
-      ctx.arc(p.x * scaleX, p.y * scaleY, 4, 0, Math.PI*2);
-      ctx.fillStyle = active ? '#ff6b81' : '#26d0ce';
+      ctx.arc(p.x * scaleX, p.y * scaleY, 3.5, 0, Math.PI*2);
+      ctx.fillStyle = active ? '#ff5470' : '#6c63ff';
       ctx.fill();
     }
   });
@@ -860,6 +913,7 @@ function confirmCameraDistraction() {
   speak(randomMsg(MESSAGES_DISTRACT));
   showToast('⚠️', randomMsg(MESSAGES_DISTRACT));
   addLog('Distraction detected', 'dist');
+  playAlarm();
 
   syncTimer();
   updateStatusUI();
@@ -870,9 +924,35 @@ function resolveCameraDistraction() {
   document.getElementById('distractionBanner').style.display = 'none';
   document.querySelector('.cam-box').classList.remove('out-of-frame');
   addLog('Back in frame ✓', 'focus');
+  stopAlarm();
   syncTimer();
   updateStatusUI();
 }
+
+/* ═══════════════════════════════════
+   ALARM SOUND — plays while out of frame, loops until resolved
+═══════════════════════════════════ */
+function playAlarm() {
+  if(!document.getElementById('alarmToggle').checked) return;
+  const audio = document.getElementById('alarmAudio');
+  audio.currentTime = 0;
+  audio.play().catch(() => { /* browser blocked autoplay — will retry on next confirm */ });
+}
+
+function stopAlarm() {
+  const audio = document.getElementById('alarmAudio');
+  audio.pause();
+  audio.currentTime = 0;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const alarmToggle = document.getElementById('alarmToggle');
+  if(alarmToggle) {
+    alarmToggle.addEventListener('change', function() {
+      if(!this.checked) stopAlarm();
+    });
+  }
+});
 
 /* ═══════════════════════════════════
    TIMER STATE MACHINE
@@ -941,6 +1021,7 @@ function resetTimer() {
   distractAccum = 0; distractStart = null;
   distractionCount = 0; tabSwitchCount = 0;
   focusScore = 100;
+  stopAlarm();
 
   syncTimer();
   renderTimer(0);
@@ -991,7 +1072,7 @@ function updateStatusUI() {
 
   document.getElementById('swSub').textContent =
     timerRunning ? 'Counting focused time…'
-    : (wantsToRun ? '⏸ Paused — get back to studying!' : 'Timer paused');
+    : (wantsToRun ? 'Paused — get back to studying!' : 'Timer paused');
 }
 
 /* ═══════════════════════════════════
@@ -1023,7 +1104,7 @@ function updateFocusScore() {
   document.getElementById('focusScoreNum').textContent = s;
   document.getElementById('focusBar').style.width = s + '%';
   const el = document.getElementById('focusScoreNum');
-  el.style.color = s > 70 ? '#48cfad' : s > 40 ? '#ffa502' : '#ff4757';
+  el.style.color = s > 70 ? '#34d399' : s > 40 ? '#ffb020' : '#ff5470';
 }
 
 /* ═══════════════════════════════════

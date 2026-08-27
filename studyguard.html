@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyGuard - AI Study Tracker</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── LANDING / PERMISSION SCREEN ── */
+  #permissionScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%);
+    text-align: center;
+    padding: 20px;
+  }
+
+  .logo {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.08); }
+  }
+
+  #permissionScreen h1 {
+    font-size: 2.8rem;
+    background: linear-gradient(90deg, #6c63ff, #48cfad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+
+  #permissionScreen p {
+    color: #aaa;
+    font-size: 1.1rem;
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+  }
+
+  .feature-list {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+
+  .feature-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 14px;
+    padding: 16px 20px;
+    width: 160px;
+    text-align: center;
+  }
+
+  .feature-card .icon { font-size: 2rem; margin-bottom: 8px; }
+  .feature-card p    { color: #ccc; font-size: 0.82rem; }
+
+  #startBtn {
+    background: linear-gradient(135deg, #6c63ff, #48cfad);
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 16px 48px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 8px 32px rgba(108,99,255,0.4);
+  }
+
+  #startBtn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(108,99,255,0.6); }
+  #startBtn:disabled { opacity: .6; cursor: not-allowed; transform:none; }
+
+  /* ── MAIN APP ── */
+  #mainApp {
+    display: none;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .topbar h2 {
+    font-size: 1.6rem;
+    background: linear-gradient(90deg, #6c63ff, #48cfad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-size: .9rem;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #48cfad;
+    animation: blink 1.2s infinite;
+  }
+
+  .dot.red   { background: #ff4757; }
+  .dot.grey  { background: #666; animation: none; }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+  }
+
+  @media(max-width:860px){ .grid{ grid-template-columns:1fr; } }
+
+  .cam-box {
+    background: #111128;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid rgba(108,99,255,0.3);
+    aspect-ratio: 4/3;
+    margin-bottom: 20px;
+  }
+
+  #video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1);
+  }
+
+  #overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    transform: scaleX(-1);
+  }
+
+  .cam-label {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: .8rem;
+    color: #48cfad;
+    backdrop-filter: blur(6px);
+  }
+
+  .cam-perf {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: .72rem;
+    color: #888;
+    backdrop-filter: blur(6px);
+  }
+
+  #distractionBanner {
+    display: none;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,71,87,0.92);
+    text-align: center;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    animation: slideUp .4s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+  /* video card */
+  .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 12px;
+    display: none;
+  }
+  .video-frame iframe { width:100%; height:100%; border:0; display:block; }
+
+  .video-input-row { display:flex; gap:8px; }
+  .video-input-row input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #fff;
+    font-size: .85rem;
+    outline: none;
+  }
+  .video-input-row input:focus { border-color: #6c63ff; }
+  .video-input-row input::placeholder { color: #555; }
+
+  .video-badge {
+    margin-top: 10px;
+    font-size: .78rem;
+    color: #48cfad;
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .yt-error {
+    display: none;
+    margin-top: 10px;
+    font-size: .8rem;
+    color: #ff6b81;
+    background: rgba(255,71,87,0.08);
+    border: 1px solid rgba(255,71,87,0.3);
+    border-radius: 10px;
+    padding: 10px 12px;
+    line-height: 1.5;
+  }
+  .yt-error a { color: #48cfad; text-decoration: underline; }
+
+  .frame-hint {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: .74rem;
+    color: #ccc;
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .cam-box.out-of-frame { border-color: rgba(255,71,87,0.7); }
+
+  .side-panel { display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: #111128;
+    border-radius: 18px;
+    padding: 22px;
+    border: 1px solid rgba(108,99,255,0.2);
+  }
+
+  .card h3 {
+    font-size: .85rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .stopwatch-display {
+    font-size: 2.9rem;
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(90deg, #6c63ff, #48cfad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stopwatch-sub {
+    text-align: center;
+    font-size: .8rem;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .btn-row { display: flex; gap: 10px; }
+
+  .btn {
+    flex: 1;
+    padding: 11px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: transform .15s, opacity .15s;
+  }
+
+  .btn:active { transform: scale(.96); }
+
+  .btn-green  { background: linear-gradient(135deg,#48cfad,#26d0ce); color:#0a0a1a; }
+  .btn-red    { background: linear-gradient(135deg,#ff4757,#ff6b81); color:#fff; }
+  .btn-purple { background: linear-gradient(135deg,#6c63ff,#a29bfe); color:#fff; }
+  .btn-grey   { background: #222; color:#aaa; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .toggle-row:last-child { margin-bottom: 0; }
+  .toggle-row span { font-size: .9rem; color: #ccc; }
+
+  .switch { position:relative; width:50px; height:26px; flex-shrink:0; }
+  .switch input { opacity:0; width:0; height:0; }
+
+  .slider {
+    position: absolute; inset: 0;
+    background: #333;
+    border-radius: 26px;
+    cursor: pointer;
+    transition: .3s;
+  }
+
+  .slider:before {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .3s;
+  }
+
+  input:checked + .slider { background: linear-gradient(135deg,#6c63ff,#48cfad); }
+  input:checked + .slider:before { transform: translateX(24px); }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: #888; font-size: .85rem; }
+  .stat-value { font-weight: 700; font-size: .95rem; }
+  .stat-value.good  { color: #48cfad; }
+  .stat-value.warn  { color: #ffa502; }
+  .stat-value.bad   { color: #ff4757; }
+
+  #logList {
+    max-height: 160px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+  }
+
+  .log-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: .82rem;
+    color: #aaa;
+  }
+
+  .log-item .log-time { color: #555; white-space: nowrap; min-width: 54px; }
+  .log-item.dist      { color: #ff6b81; }
+  .log-item.focus     { color: #48cfad; }
+  .log-item.tab       { color: #ffa502; }
+
+  #toast {
+    position: fixed;
+    top: 24px; right: 24px;
+    background: rgba(20,20,50,0.95);
+    border: 1px solid rgba(108,99,255,0.4);
+    border-radius: 14px;
+    padding: 14px 20px;
+    min-width: 260px;
+    font-size: .92rem;
+    z-index: 9999;
+    display: none;
+    backdrop-filter: blur(10px);
+    animation: toastIn .35s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  @keyframes toastIn { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
+
+  #toast .toast-icon { font-size:1.4rem; margin-right:10px; }
+
+  #tabWarning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,71,87,0.12);
+    pointer-events: none;
+    z-index: 8888;
+    border: 4px solid #ff4757;
+    animation: borderPulse 1s infinite;
+  }
+
+  @keyframes borderPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .progress-bar-wrap {
+    background: #1a1a3e;
+    border-radius: 50px;
+    height: 8px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 50px;
+    background: linear-gradient(90deg,#6c63ff,#48cfad);
+    transition: width .5s;
+  }
+
+  .focus-score-num {
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    margin: 6px 0 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PERMISSION / LANDING SCREEN
+════════════════════════════════════════════ -->
+<div id="permissionScreen">
+  <div class="logo">📚</div>
+  <h1>StudyGuard</h1>
+  <p>Your AI-powered focus companion. StudyGuard watches you through your camera,
+     detects when you get distracted, pauses your timer, and speaks up to bring you back!</p>
+
+  <div class="feature-list">
+    <div class="feature-card"><div class="icon">🎯</div><p>Pose & Face Tracking</p></div>
+    <div class="feature-card"><div class="icon">⏱️</div><p>Smart Stopwatch</p></div>
+    <div class="feature-card"><div class="icon">🔊</div><p>Voice Alerts</p></div>
+    <div class="feature-card"><div class="icon">📊</div><p>Focus Score</p></div>
+    <div class="feature-card"><div class="icon">🚨</div><p>Tab-Switch Detect</p></div>
+  </div>
+
+  <button id="startBtn" onclick="initApp()">🎥 Allow Camera & Start</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════ -->
+<div id="mainApp">
+
+  <div class="topbar">
+    <h2>📚 StudyGuard</h2>
+    <div class="status-badge">
+      <div class="dot" id="statusDot"></div>
+      <span id="statusText">Initialising…</span>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: camera + video -->
+    <div>
+      <div class="cam-box">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+        <div class="cam-label">📡 LIVE</div>
+        <div class="cam-perf" id="fpsLabel">— fps</div>
+        <div class="frame-hint">🧍 Keep yourself in frame</div>
+        <div id="distractionBanner">⚠️ You're out of frame — get back in view!</div>
+      </div>
+
+      <div class="card">
+        <h3>🎬 Study Video</h3>
+        <div class="video-input-row">
+          <input type="text" id="ytInput" placeholder="Paste a YouTube link…">
+          <button class="btn btn-purple" style="flex:0 0 auto; padding:11px 18px;" onclick="loadYouTube()">Load</button>
+        </div>
+        <div class="video-badge" id="videoBadge">🔒 Watch mode on — leaving this tab counts as a distraction</div>
+        <div class="video-frame" id="videoFrame"></div>
+        <div class="yt-error" id="ytError"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: controls -->
+    <div class="side-panel">
+
+      <div class="card">
+        <h3>⏱ Study Timer</h3>
+        <div class="stopwatch-display" id="swDisplay">00:00:00</div>
+        <div class="stopwatch-sub" id="swSub">Timer paused</div>
+        <div class="btn-row">
+          <button class="btn btn-green" id="btnStart" onclick="startTimer()">▶ Start</button>
+          <button class="btn btn-red"   id="btnStop"  onclick="stopTimer()" disabled>⏸ Pause</button>
+          <button class="btn btn-grey"  id="btnReset" onclick="resetTimer()">↺ Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🎯 Tracking</h3>
+        <div class="toggle-row">
+          <span>Enable Distraction Detection</span>
+          <label class="switch">
+            <input type="checkbox" id="trackToggle" checked onchange="toggleTracking()">
+            <div class="slider"></div>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Voice Alerts</span>
+          <label class="switch">
+            <input type="checkbox" id="voiceToggle" checked>
+            <div class="slider"></div>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Tab-Switch Alert</span>
+          <label class="switch">
+            <input type="checkbox" id="tabToggle" checked>
+            <div class="slider"></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🧠 Focus Score</h3>
+        <div class="focus-score-num" id="focusScoreNum">100</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="focusBar" style="width:100%"></div></div>
+      </div>
+
+      <div class="card">
+        <h3>📊 Session Stats</h3>
+        <div class="stat-row"><span class="stat-label">Focus time</span><span class="stat-value good" id="statFocus">00:00</span></div>
+        <div class="stat-row"><span class="stat-label">Distracted time</span><span class="stat-value bad" id="statDist">00:00</span></div>
+        <div class="stat-row"><span class="stat-label">Distractions</span><span class="stat-value warn" id="statCount">0</span></div>
+        <div class="stat-row"><span class="stat-label">Tab switches</span><span class="stat-value warn" id="statTab">0</span></div>
+      </div>
+
+      <div class="card">
+        <h3>📝 Activity Log</h3>
+        <div id="logList"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="tabWarning"></div>
+
+<div id="toast">
+  <span class="toast-icon" id="toastIcon">⚠️</span>
+  <span id="toastMsg">Alert</span>
+</div>
+
+<!-- Pose model only: this is what actually detects "are you in frame", is lighter,
+     and — unlike the old face-mesh model — never gets stuck if it fails to load. -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
+
+<script>
+/* ═══════════════════════════════════
+   GLOBALS
+═══════════════════════════════════ */
+let stream, poseDetector;
+let trackingOn      = true;
+let detecting        = false;   // guards against overlapping inference calls
+let detectionHandle   = null;
+let videoLoaded       = false;
+
+// YouTube IFrame API state
+let ytApiReady    = false;
+let ytPlayer      = null;
+let pendingVideoId = null;
+
+// ---- unified "why is the timer blocked" state machine ----
+// blockers: reasons the timer is NOT allowed to run right now
+const blockers = new Set();      // 'camera' | 'tab'
+let wantsToRun  = false;         // true after Start pressed, false after Pause/Reset
+let timerRunning = false;        // derived - is the stopwatch actually counting
+
+// stopwatch (timestamp based, so it never drifts)
+let accumulatedMs = 0;
+let runStart       = null;
+let renderHandle    = null;
+
+// distracted-time tracker (only counts while a session is "wanted" but blocked)
+let distractAccum = 0;
+let distractStart  = null;
+
+let distractionCount = 0;
+let tabSwitchCount   = 0;
+let focusScore        = 100;
+
+let lastSpeakTime    = 0;
+let distractionTimer = null;
+
+const SPEAK_COOLDOWN = 6000;   // ms between voice alerts
+const DISTRACT_GRACE = 900;    // ms before confirming a camera distraction
+
+const MESSAGES_DISTRACT = [
+  "Hey, where'd you go? Get back in frame!",
+  "I can't see you anymore — come back!",
+  "You stepped out of frame, let's refocus!",
+  "Get back in the camera view to keep going!",
+  "Come on, I lost you! Get back in frame!",
+];
+
+const MESSAGES_TAB = [
+  "Where do you think you're going?",
+  "Hey! Come back, you were studying!",
+  "Tab switch detected! No procrastinating!",
+  "Focus! Close that tab and study!",
+];
+
+const MESSAGES_TAB_VIDEO = [
+  "Hey! You're supposed to be watching the video!",
+  "Come back — you left the video!",
+  "No skipping out on the lesson!",
+  "Get back here, the video's still playing!",
+];
+
+/* ═══════════════════════════════════
+   INIT
+═══════════════════════════════════ */
+async function initApp() {
+  const startBtn = document.getElementById('startBtn');
+  startBtn.textContent = '⏳ Loading…';
+  startBtn.disabled    = true;
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 480, height: 360, facingMode: 'user' },
+      audio: false
+    });
+  } catch(e) {
+    alert('Camera permission denied. Please allow camera access and reload.');
+    startBtn.textContent = '🎥 Allow Camera & Start';
+    startBtn.disabled    = false;
+    return;
+  }
+
+  document.getElementById('permissionScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+
+  const video   = document.getElementById('video');
+  const overlay = document.getElementById('overlay');
+  video.srcObject = stream;
+  await new Promise(r => video.onloadedmetadata = r);
+  await video.play();
+
+  overlay.width  = video.videoWidth;
+  overlay.height = video.videoHeight;
+
+  setStatus('Loading AI models…', 'grey');
+
+  try { await tf.setBackend('webgl'); } catch(e) {}
+  await tf.ready();
+
+  try {
+    poseDetector = await poseDetection.createDetector(
+      poseDetection.SupportedModels.MoveNet,
+      { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+    );
+  } catch(e) {
+    console.warn('Pose detector failed:', e);
+    setStatus('Camera tracking unavailable', 'grey');
+  }
+
+  setStatus('Tracking Active', 'green');
+  addLog('Session started', 'focus');
+
+  // Detection runs on its own fixed-rate loop (decoupled from screen refresh) —
+  // this keeps CPU/GPU load low and reactions fast and consistent.
+  detectionHandle = setInterval(detectionTick, 150);
+
+  setupTabDetection();
+  startStatsLoop();
+
+  // slow focus-score recovery while genuinely focused & running
+  setInterval(() => {
+    if(!blockers.has('camera') && !blockers.has('tab') && timerRunning) {
+      focusScore = Math.min(100, focusScore + 0.5);
+      updateFocusScore();
+    }
+  }, 3000);
+}
+
+/* ═══════════════════════════════════
+   DETECTION TICK  (throttled, non-overlapping)
+═══════════════════════════════════ */
+let framesThisSecond = 0, lastFpsTs = performance.now();
+
+async function detectionTick() {
+  if(detecting || document.hidden) return; // don't burn CPU on a hidden tab
+  if(!trackingOn || !poseDetector) {
+    clearOverlay();
+    return;
+  }
+  detecting = true;
+
+  const video = document.getElementById('video');
+  let poses = [];
+
+  try {
+    poses = await poseDetector.estimatePoses(video);
+  } catch(e) { /* ignore a transient inference error, try again next tick */ }
+
+  drawFrame(poses);
+
+  const nowOutOfFrame = analyseOutOfFrame(poses);
+  handleCameraDistraction(nowOutOfFrame);
+
+  framesThisSecond++;
+  const t = performance.now();
+  if(t - lastFpsTs > 1000) {
+    document.getElementById('fpsLabel').textContent =
+      Math.round(framesThisSecond * 1000 / (t - lastFpsTs)) + ' fps';
+    framesThisSecond = 0;
+    lastFpsTs = t;
+  }
+
+  detecting = false;
+}
+
+function clearOverlay() {
+  const overlay = document.getElementById('overlay');
+  overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+}
+
+function drawFrame(poses) {
+  const overlay = document.getElementById('overlay');
+  const ctx     = overlay.getContext('2d');
+  ctx.clearRect(0, 0, overlay.width, overlay.height);
+  if(poses.length) drawPose(ctx, poses[0], overlay.width, overlay.height);
+}
+
+/* ═══════════════════════════════════
+   POSE DRAWING (stick figure)
+═══════════════════════════════════ */
+const CONNECTIONS = [
+  [0,1],[0,2],[1,3],[2,4],
+  [5,6],[5,7],[7,9],[6,8],[8,10],
+  [5,11],[6,12],[11,12],
+  [11,13],[13,15],[12,14],[14,16]
+];
+
+function drawPose(ctx, pose, w, h) {
+  const kp = pose.keypoints;
+  const scaleX = w / 480;
+  const scaleY = h / 360;
+  const active = blockers.has('camera');
+
+  ctx.strokeStyle = active ? '#ff4757' : '#48cfad';
+  ctx.lineWidth   = 2.5;
+  CONNECTIONS.forEach(([a, b]) => {
+    const A = kp[a], B = kp[b];
+    if(A.score > 0.3 && B.score > 0.3) {
+      ctx.beginPath();
+      ctx.moveTo(A.x * scaleX, A.y * scaleY);
+      ctx.lineTo(B.x * scaleX, B.y * scaleY);
+      ctx.stroke();
+    }
+  });
+
+  kp.forEach(p => {
+    if(p.score > 0.3) {
+      ctx.beginPath();
+      ctx.arc(p.x * scaleX, p.y * scaleY, 4, 0, Math.PI*2);
+      ctx.fillStyle = active ? '#ff6b81' : '#26d0ce';
+      ctx.fill();
+    }
+  });
+}
+
+/* ═══════════════════════════════════
+   OUT-OF-FRAME ANALYSIS (pose only)
+   Distraction now means exactly one thing: you physically left the
+   camera's view. Turning your head or looking sideways no longer
+   triggers anything — only losing enough of your body from frame does.
+═══════════════════════════════════ */
+function analyseOutOfFrame(poses) {
+  if(!poses || poses.length === 0) return true;
+
+  const kp = poses[0].keypoints;
+  // nose, left/right eye, left/right shoulder, left/right hip
+  const trackedIdx = [0, 1, 2, 5, 6, 11, 12];
+  const visibleCount = trackedIdx.filter(i => kp[i] && kp[i].score > 0.35).length;
+
+  // Require at least 3 confidently-visible landmarks (roughly: head + one shoulder,
+  // or both shoulders) to count as "in frame". Anything less = stepped out of view.
+  return visibleCount < 3;
+}
+
+/* ═══════════════════════════════════
+   CAMERA DISTRACTION → GRACE PERIOD
+═══════════════════════════════════ */
+function handleCameraDistraction(nowDistracted) {
+  const currentlyBlocked = blockers.has('camera');
+
+  if(nowDistracted && !currentlyBlocked) {
+    if(!distractionTimer) {
+      distractionTimer = setTimeout(() => {
+        distractionTimer = null;
+        confirmCameraDistraction();
+      }, DISTRACT_GRACE);
+    }
+  } else if(!nowDistracted) {
+    if(distractionTimer) { clearTimeout(distractionTimer); distractionTimer = null; }
+    if(currentlyBlocked) resolveCameraDistraction();
+  }
+}
+
+function confirmCameraDistraction() {
+  if(blockers.has('camera')) return;
+  blockers.add('camera');
+  distractionCount++;
+
+  document.getElementById('distractionBanner').style.display = 'block';
+  document.querySelector('.cam-box').classList.add('out-of-frame');
+  updateStatCount();
+  focusScore = Math.max(0, focusScore - 8);
+  updateFocusScore();
+
+  speak(randomMsg(MESSAGES_DISTRACT));
+  showToast('⚠️', randomMsg(MESSAGES_DISTRACT));
+  addLog('Distraction detected', 'dist');
+
+  syncTimer();
+  updateStatusUI();
+}
+
+function resolveCameraDistraction() {
+  blockers.delete('camera');
+  document.getElementById('distractionBanner').style.display = 'none';
+  document.querySelector('.cam-box').classList.remove('out-of-frame');
+  addLog('Back in frame ✓', 'focus');
+  syncTimer();
+  updateStatusUI();
+}
+
+/* ═══════════════════════════════════
+   TIMER STATE MACHINE
+   The stopwatch runs iff: wantsToRun === true AND blockers is empty.
+   Every place that changes wantsToRun or blockers calls syncTimer(),
+   so the timer always auto-resumes the instant the last blocker clears.
+═══════════════════════════════════ */
+function syncTimer() {
+  const shouldRun            = wantsToRun && blockers.size === 0;
+  const shouldCountDistraction = wantsToRun && blockers.size > 0;
+
+  if(shouldRun && !timerRunning) {
+    runStart = Date.now();
+    timerRunning = true;
+    if(!renderHandle) renderHandle = requestAnimationFrame(renderLoop);
+  } else if(!shouldRun && timerRunning) {
+    accumulatedMs += Date.now() - runStart;
+    runStart = null;
+    timerRunning = false;
+  }
+
+  if(shouldCountDistraction && !distractStart) {
+    distractStart = Date.now();
+  } else if(!shouldCountDistraction && distractStart) {
+    distractAccum += Date.now() - distractStart;
+    distractStart = null;
+  }
+
+  document.getElementById('btnStart').disabled = wantsToRun;
+  document.getElementById('btnStop').disabled  = !wantsToRun;
+}
+
+function currentElapsed()   { return accumulatedMs + (runStart ? Date.now() - runStart : 0); }
+function currentDistracted(){ return distractAccum + (distractStart ? Date.now() - distractStart : 0); }
+
+function renderLoop() {
+  renderTimer(currentElapsed());
+  if(timerRunning) {
+    renderHandle = requestAnimationFrame(renderLoop);
+  } else {
+    renderHandle = null;
+  }
+}
+
+function startTimer() {
+  if(wantsToRun) return;
+  wantsToRun = true;
+  addLog('Timer started', 'focus');
+  syncTimer();
+  updateStatusUI();
+}
+
+function stopTimer() {
+  if(!wantsToRun) return;
+  wantsToRun = false;
+  addLog('Timer paused', 'dist');
+  syncTimer();
+  updateStatusUI();
+  renderTimer(currentElapsed());
+}
+
+function resetTimer() {
+  wantsToRun = false;
+  blockers.delete('camera'); // keep 'tab' if the tab is literally still hidden
+  accumulatedMs = 0; runStart = null;
+  distractAccum = 0; distractStart = null;
+  distractionCount = 0; tabSwitchCount = 0;
+  focusScore = 100;
+
+  syncTimer();
+  renderTimer(0);
+  updateFocusScore();
+  updateStatCount();
+  document.getElementById('statFocus').textContent = '00:00';
+  document.getElementById('statDist').textContent  = '00:00';
+  document.getElementById('distractionBanner').style.display = 'none';
+  document.getElementById('logList').innerHTML = '';
+  addLog('Session reset', 'focus');
+  updateStatusUI();
+}
+
+function renderTimer(ms) {
+  const h  = Math.floor(ms / 3600000);
+  const m  = Math.floor((ms % 3600000) / 60000);
+  const s  = Math.floor((ms % 60000)   / 1000);
+  const cs = Math.floor((ms % 1000) / 10);
+  document.getElementById('swDisplay').textContent =
+    `${pad(h)}:${pad(m)}:${pad(s)}.${pad(cs)}`;
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+/* ═══════════════════════════════════
+   STATUS UI
+═══════════════════════════════════ */
+function updateStatusUI() {
+  const dot  = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+
+  if(!trackingOn) {
+    dot.className = 'dot grey';
+    text.textContent = 'Tracking Off';
+  } else if(blockers.has('camera')) {
+    dot.className = 'dot red';
+    text.textContent = 'Out of frame!';
+  } else if(blockers.has('tab')) {
+    dot.className = 'dot red';
+    text.textContent = videoLoaded ? 'Left the video!' : 'Left the tab!';
+  } else if(!wantsToRun) {
+    dot.className = 'dot grey';
+    text.textContent = 'Paused';
+  } else {
+    dot.className = 'dot';
+    text.textContent = 'Tracking Active';
+  }
+
+  document.getElementById('swSub').textContent =
+    timerRunning ? 'Counting focused time…'
+    : (wantsToRun ? '⏸ Paused — get back to studying!' : 'Timer paused');
+}
+
+/* ═══════════════════════════════════
+   STATS LOOP
+═══════════════════════════════════ */
+function startStatsLoop() {
+  setInterval(() => {
+    document.getElementById('statFocus').textContent = msToMMSS(currentElapsed());
+    document.getElementById('statDist').textContent  = msToMMSS(currentDistracted());
+  }, 1000);
+}
+
+function msToMMSS(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${pad(m)}:${pad(s)}`;
+}
+
+function updateStatCount() {
+  document.getElementById('statCount').textContent = distractionCount;
+  document.getElementById('statTab').textContent   = tabSwitchCount;
+}
+
+/* ═══════════════════════════════════
+   FOCUS SCORE
+═══════════════════════════════════ */
+function updateFocusScore() {
+  const s = Math.max(0, Math.min(100, Math.round(focusScore)));
+  document.getElementById('focusScoreNum').textContent = s;
+  document.getElementById('focusBar').style.width = s + '%';
+  const el = document.getElementById('focusScoreNum');
+  el.style.color = s > 70 ? '#48cfad' : s > 40 ? '#ffa502' : '#ff4757';
+}
+
+/* ═══════════════════════════════════
+   TAB DETECTION
+═══════════════════════════════════ */
+function setupTabDetection() {
+  document.addEventListener('visibilitychange', () => {
+    if(!document.getElementById('tabToggle').checked) return;
+
+    if(document.hidden) {
+      tabSwitchCount++;
+      updateStatCount();
+      blockers.add('tab');
+      focusScore = Math.max(0, focusScore - 5);
+      updateFocusScore();
+
+      document.getElementById('tabWarning').style.display = 'block';
+      const msgs = videoLoaded ? MESSAGES_TAB_VIDEO : MESSAGES_TAB;
+      speak(randomMsg(msgs));
+      showToast('🚨', randomMsg(msgs));
+      addLog(videoLoaded ? 'Left the video tab!' : 'Tab switch detected!', 'tab');
+
+      syncTimer();
+      updateStatusUI();
+    } else {
+      blockers.delete('tab');
+      document.getElementById('tabWarning').style.display = 'none';
+      showToast('👋', 'Welcome back! Get back to studying!');
+      speak('Welcome back! Now focus!');
+      addLog('Returned to tab', 'focus');
+
+      syncTimer();
+      updateStatusUI();
+    }
+  });
+
+  if('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').catch(()=>{});
+  }
+}
+
+/* ═══════════════════════════════════
+   TRACKING TOGGLE
+═══════════════════════════════════ */
+function toggleTracking() {
+  trackingOn = document.getElementById('trackToggle').checked;
+  if(!trackingOn) {
+    clearOverlay();
+    document.getElementById('distractionBanner').style.display = 'none';
+    if(distractionTimer) { clearTimeout(distractionTimer); distractionTimer = null; }
+    if(blockers.has('camera')) resolveCameraDistraction();
+    addLog('Tracking disabled', 'dist');
+  } else {
+    addLog('Tracking enabled', 'focus');
+  }
+  updateStatusUI();
+}
+
+/* ═══════════════════════════════════
+   YOUTUBE VIDEO — official IFrame API
+   (a plain <iframe src="…embed/ID"> is what causes the vague
+   "configuration error" — the real API gives us the actual reason,
+   e.g. the video's owner has disabled embedding, so we can tell you
+   exactly what's wrong instead of just showing a broken player.)
+═══════════════════════════════════ */
+(function loadYouTubeAPI() {
+  if(window.YT && window.YT.Player) { ytApiReady = true; return; }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
+
+window.onYouTubeIframeAPIReady = function() {
+  ytApiReady = true;
+  if(pendingVideoId) {
+    const id = pendingVideoId;
+    pendingVideoId = null;
+    createYtPlayer(id);
+  }
+};
+
+function extractYouTubeId(raw) {
+  const url = raw.trim();
+  // bare 11-char video id pasted directly
+  if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
+  const patterns = [
+    /youtube\.com\/watch\?[^#]*\bv=([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/embed\/([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/live\/([A-Za-z0-9_-]{11})/,
+    /youtu\.be\/([A-Za-z0-9_-]{11})/
+  ];
+  for(const re of patterns) {
+    const m = url.match(re);
+    if(m) return m[1];
+  }
+  return null;
+}
+
+function loadYouTube() {
+  const input = document.getElementById('ytInput');
+  const id = extractYouTubeId(input.value);
+  if(!id) {
+    showToast('⚠️', "That doesn't look like a valid YouTube link");
+    return;
+  }
+
+  document.getElementById('ytError').style.display = 'none';
+  document.getElementById('videoFrame').style.display = 'block';
+  document.getElementById('videoBadge').style.display = 'flex';
+  videoLoaded = true;
+  document.getElementById('tabToggle').checked = true; // watch mode needs tab detection on
+  addLog('Study video loaded', 'focus');
+
+  if(ytApiReady) createYtPlayer(id);
+  else pendingVideoId = id;
+}
+
+function createYtPlayer(id) {
+  const frame = document.getElementById('videoFrame');
+  frame.innerHTML = '<div id="ytPlayerEl"></div>';
+
+  if(ytPlayer) { try { ytPlayer.destroy(); } catch(e) {} }
+
+  ytPlayer = new YT.Player('ytPlayerEl', {
+    videoId: id,
+    playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+    events: {
+      onReady: (e) => { try { e.target.playVideo(); } catch(err) {} },
+      onError: (e) => showYtError(e.data, id)
+    }
+  });
+}
+
+function showYtError(code, id) {
+  let msg;
+  switch(code) {
+    case 2:   msg = "That video link isn't valid."; break;
+    case 5:   msg = "This video can't play in an embedded player right now."; break;
+    case 100: msg = "This video was removed or is private."; break;
+    case 101:
+    case 150: msg = "This video's owner has disabled it from playing on other websites — that's a restriction only they can lift. Try a different video."; break;
+    default:  msg = "This video can't be played here."; break;
+  }
+  const err = document.getElementById('ytError');
+  err.textContent = '⚠️ ' + msg + '  ';
+  const a = document.createElement('a');
+  a.href = 'https://www.youtube.com/watch?v=' + id;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = 'Open on YouTube ↗';
+  err.appendChild(a);
+  err.style.display = 'block';
+  showToast('⚠️', msg);
+}
+
+/* ═══════════════════════════════════
+   VOICE
+═══════════════════════════════════ */
+function speak(text) {
+  if(!document.getElementById('voiceToggle').checked) return;
+  const now = Date.now();
+  if(now - lastSpeakTime < SPEAK_COOLDOWN) return;
+  lastSpeakTime = now;
+
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.pitch = 1.05;
+  u.rate  = 0.95;
+  u.volume = 1;
+
+  const voices = window.speechSynthesis.getVoices();
+  const best = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female'))
+             || voices.find(v => v.lang.startsWith('en'))
+             || voices[0];
+  if(best) u.voice = best;
+
+  window.speechSynthesis.speak(u);
+}
+
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+/* ═══════════════════════════════════
+   TOAST
+═══════════════════════════════════ */
+let toastTimeout;
+function showToast(icon, msg) {
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent  = msg;
+  const t = document.getElementById('toast');
+  t.style.display = 'flex';
+  t.style.alignItems = 'center';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.style.display = 'none', 4000);
+}
+
+/* ═══════════════════════════════════
+   LOG
+═══════════════════════════════════ */
+function addLog(msg, type) {
+  const list = document.getElementById('logList');
+  const now  = new Date();
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const item = document.createElement('div');
+  item.className = `log-item ${type}`;
+  item.innerHTML = `<span class="log-time">${time}</span><span></span>`;
+  item.querySelector('span:last-child').textContent = msg;
+  list.prepend(item);
+  while(list.children.length > 50) list.removeChild(list.lastChild);
+}
+
+function setStatus(text, colour) {
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusDot').className    = `dot ${colour === 'green' ? '' : colour}`.trim();
+}
+
+function randomMsg(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+</script>
+</body>
+</html>
